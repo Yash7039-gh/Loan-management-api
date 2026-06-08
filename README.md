@@ -2,7 +2,7 @@
 
 A production-ready **REST API** built with **Python Flask**, **PostgreSQL**, **Docker**, and **Jenkins CI/CD**. 
 
----
+
 
 ## 🚀 Tech Stack
 
@@ -15,7 +15,7 @@ A production-ready **REST API** built with **Python Flask**, **PostgreSQL**, **D
 | Containerization | Docker + Docker Compose |
 | API Style | RESTful |
 
----
+
 
 ## 📋 Features
 
@@ -93,7 +93,7 @@ students (id, name, email, course, created_at)
                 └──< repayments (id, loan_id, amount_paid, paid_at, remarks)
 ```
 
----
+
 
 ## 📡 API Endpoints
 
