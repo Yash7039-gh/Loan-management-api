@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LoanFlow — Student Loan Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e17;
+  --surface:#111827;
+  --surface2:#1a2235;
+  --border:#1e2d45;
+  --accent:#00d4ff;
+  --accent2:#7c3aed;
+  --accent3:#10b981;
+  --warn:#f59e0b;
+  --danger:#ef4444;
+  --text:#e2e8f0;
+  --muted:#64748b;
+  --card-glow:rgba(0,212,255,0.06);
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── BACKGROUND GRID ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;z-index:0;
+}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  position:fixed;left:0;top:0;bottom:0;width:240px;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  z-index:100;
+  padding:0;
+}
+.logo{
+  padding:28px 24px 20px;
+  border-bottom:1px solid var(--border);
+}
+.logo-mark{
+  display:flex;align-items:center;gap:10px;
+}
+.logo-icon{
+  width:36px;height:36px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+}
+.logo-text{
+  font-family:'Syne',sans-serif;
+  font-size:20px;font-weight:800;
+  background:linear-gradient(135deg,var(--accent),#a78bfa);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.logo-sub{
+  font-size:10px;color:var(--muted);
+  font-family:'DM Mono',monospace;
+  margin-top:3px;letter-spacing:1px;
+}
+
+nav{padding:16px 12px;flex:1;}
+.nav-section{
+  font-size:10px;color:var(--muted);
+  letter-spacing:1.5px;font-weight:500;
+  padding:8px 12px 6px;text-transform:uppercase;
+  font-family:'DM Mono',monospace;
+}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 12px;border-radius:8px;
+  cursor:pointer;font-size:14px;color:var(--muted);
+  transition:all .2s;margin-bottom:2px;
+  border:1px solid transparent;
+  font-weight:500;
+}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{
+  background:rgba(0,212,255,0.08);
+  color:var(--accent);
+  border-color:rgba(0,212,255,0.15);
+}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+.nav-badge{
+  margin-left:auto;
+  background:var(--accent2);color:#fff;
+  font-size:10px;padding:2px 7px;border-radius:20px;
+  font-family:'DM Mono',monospace;
+}
+
+.sidebar-footer{
+  padding:16px;
+  border-top:1px solid var(--border);
+}
+.user-card{
+  display:flex;align-items:center;gap:10px;
+  padding:10px;background:var(--surface2);
+  border-radius:8px;border:1px solid var(--border);
+}
+.user-avatar{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent2),var(--accent));
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:#fff;
+  font-family:'Syne',sans-serif;
+}
+.user-name{font-size:13px;font-weight:500;}
+.user-role{font-size:11px;color:var(--muted);}
+
+/* ── MAIN ── */
+.main{
+  margin-left:240px;
+  min-height:100vh;
+  position:relative;z-index:1;
+}
+
+/* ── TOPBAR ── */
+.topbar{
+  height:64px;
+  border-bottom:1px solid var(--border);
+  background:rgba(10,14,23,0.8);
+  backdrop-filter:blur(10px);
+  display:flex;align-items:center;
+  padding:0 32px;
+  position:sticky;top:0;z-index:50;
+  gap:16px;
+}
+.page-title{
+  font-family:'Syne',sans-serif;
+  font-size:20px;font-weight:700;
+  flex:1;
+}
+.topbar-badge{
+  font-family:'DM Mono',monospace;
+  font-size:11px;color:var(--accent);
+  background:rgba(0,212,255,0.08);
+  border:1px solid rgba(0,212,255,0.2);
+  padding:4px 10px;border-radius:20px;
+}
+
+/* ── CONTENT ── */
+.content{padding:32px;}
+
+/* ── SECTION ── */
+.section{display:none;}
+.section.active{display:block;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── STATS GRID ── */
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:16px;margin-bottom:32px;
+}
+.stat-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;padding:20px;
+  position:relative;overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+  cursor:default;
+}
+.stat-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+.stat-card::before{
+  content:'';position:absolute;
+  top:-1px;left:20px;right:20px;height:2px;
+  border-radius:2px;
+}
+.stat-card.blue::before{background:linear-gradient(90deg,transparent,var(--accent),transparent);}
+.stat-card.purple::before{background:linear-gradient(90deg,transparent,var(--accent2),transparent);}
+.stat-card.green::before{background:linear-gradient(90deg,transparent,var(--accent3),transparent);}
+.stat-card.yellow::before{background:linear-gradient(90deg,transparent,var(--warn),transparent);}
+.stat-card.red::before{background:linear-gradient(90deg,transparent,var(--danger),transparent);}
+
+.stat-icon{
+  font-size:24px;margin-bottom:12px;
+}
+.stat-value{
+  font-family:'Syne',sans-serif;
+  font-size:28px;font-weight:800;
+  line-height:1;margin-bottom:4px;
+}
+.stat-label{font-size:13px;color:var(--muted);}
+.stat-card.blue .stat-value{color:var(--accent);}
+.stat-card.purple .stat-value{color:#a78bfa;}
+.stat-card.green .stat-value{color:var(--accent3);}
+.stat-card.yellow .stat-value{color:var(--warn);}
+.stat-card.red .stat-value{color:var(--danger);}
+
+/* ── CARD ── */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  margin-bottom:24px;
+}
+.card-header{
+  padding:18px 24px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.card-title{
+  font-family:'Syne',sans-serif;
+  font-size:16px;font-weight:700;flex:1;
+}
+.card-body{padding:24px;}
+
+/* ── FORM ── */
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:16px;margin-bottom:20px;
+}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+label{font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.5px;text-transform:uppercase;}
+input,select,textarea{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:8px;padding:10px 14px;
+  color:var(--text);font-size:14px;
+  font-family:'DM Sans',sans-serif;
+  transition:border-color .2s,box-shadow .2s;
+  outline:none;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(0,212,255,0.08);
+}
+input::placeholder,textarea::placeholder{color:var(--muted);}
+select option{background:var(--surface2);}
+textarea{resize:vertical;min-height:80px;}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 20px;border-radius:8px;
+  font-size:14px;font-weight:500;cursor:pointer;
+  border:none;transition:all .2s;
+  font-family:'DM Sans',sans-serif;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--accent),#0099cc);
+  color:#000;font-weight:600;
+}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px);}
+.btn-success{background:var(--accent3);color:#000;font-weight:600;}
+.btn-success:hover{opacity:.9;}
+.btn-danger{background:var(--danger);color:#fff;font-weight:600;}
+.btn-danger:hover{opacity:.9;}
+.btn-warn{background:var(--warn);color:#000;font-weight:600;}
+.btn-outline{
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--text);
+}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.btn-sm{padding:6px 12px;font-size:12px;}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead tr{border-bottom:1px solid var(--border);}
+th{
+  padding:10px 16px;text-align:left;
+  font-size:11px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:1px;
+  font-weight:500;white-space:nowrap;
+}
+td{
+  padding:14px 16px;font-size:13px;
+  border-bottom:1px solid rgba(30,45,69,0.5);
+  vertical-align:middle;
+}
+tbody tr:hover{background:rgba(255,255,255,0.02);}
+tbody tr:last-child td{border-bottom:none;}
+
+/* ── BADGE ── */
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:20px;
+  font-size:11px;font-weight:500;
+  font-family:'DM Mono',monospace;
+  letter-spacing:.3px;
+}
+.badge::before{
+  content:'';width:6px;height:6px;
+  border-radius:50%;flex-shrink:0;
+}
+.badge-pending{background:rgba(245,158,11,0.15);color:var(--warn);}
+.badge-pending::before{background:var(--warn);}
+.badge-approved{background:rgba(16,185,129,0.15);color:var(--accent3);}
+.badge-approved::before{background:var(--accent3);}
+.badge-rejected{background:rgba(239,68,68,0.15);color:var(--danger);}
+.badge-rejected::before{background:var(--danger);}
+.badge-closed{background:rgba(100,116,139,0.15);color:var(--muted);}
+.badge-closed::before{background:var(--muted);}
+
+/* ── ALERT ── */
+.alert{
+  padding:12px 16px;border-radius:8px;
+  font-size:13px;margin-bottom:16px;
+  display:none;align-items:center;gap:10px;
+  animation:fadeIn .3s ease;
+}
+.alert.show{display:flex;}
+.alert-success{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:var(--accent3);}
+.alert-error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--danger);}
+
+/* ── EMPTY STATE ── */
+.empty{
+  text-align:center;padding:60px 20px;
+  color:var(--muted);
+}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.5;}
+.empty-text{font-size:15px;}
+
+/* ── MONO ── */
+.mono{font-family:'DM Mono',monospace;}
+
+/* ── DIVIDER ── */
+.divider{
+  height:1px;background:var(--border);
+  margin:24px 0;
+}
+
+/* ── SECTION HEADER ── */
+.section-header{
+  display:flex;align-items:center;
+  justify-content:space-between;
+  margin-bottom:20px;
+}
+.section-title{
+  font-family:'Syne',sans-serif;
+  font-size:18px;font-weight:700;
+}
+
+/* ── PROGRESS BAR ── */
+.progress{
+  height:6px;background:var(--surface2);
+  border-radius:3px;overflow:hidden;
+  margin-top:8px;
+}
+.progress-bar{
+  height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  transition:width .6s ease;
+}
+
+/* ── TOOLTIP ── */
+[title]{cursor:help;}
+
+/* ── LOADING ── */
+.loading{
+  display:inline-block;
+  width:16px;height:16px;
+  border:2px solid rgba(255,255,255,0.2);
+  border-top-color:var(--accent);
+  border-radius:50%;
+  animation:spin .6s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--surface);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .content{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <div class="logo-icon">💳</div>
+      <div>
+        <div class="logo-text">LoanFlow</div>
+        <div class="logo-sub">STUDENT LOAN SYSTEM</div>
+      </div>
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-section">Main</div>
+    <div class="nav-item active" onclick="showSection('dashboard')">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="showSection('students')">
+      <span class="nav-icon">🎓</span> Students
+      <span class="nav-badge" id="nav-student-count">0</span>
+    </div>
+    <div class="nav-item" onclick="showSection('loans')">
+      <span class="nav-icon">📋</span> Loans
+      <span class="nav-badge" id="nav-loan-count">0</span>
+    </div>
+    <div class="nav-section">Actions</div>
+    <div class="nav-item" onclick="showSection('apply')">
+      <span class="nav-icon">➕</span> Apply for Loan
+    </div>
+    <div class="nav-item" onclick="showSection('repayment')">
+      <span class="nav-icon">💰</span> Repayment
+    </div>
+    <div class="nav-section">Developer</div>
+    <div class="nav-item" onclick="showSection('api')">
+      <span class="nav-icon">⚡</span> API Explorer
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">Y</div>
+      <div>
+        <div class="user-name">Yash Yadav</div>
+        <div class="user-role">Admin • Developer</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">Dashboard</div>
+    <div class="topbar-badge mono">v1.0.0</div>
+    <div class="topbar-badge mono" id="api-status">⚡ Flask + PostgreSQL</div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="section active" id="section-dashboard">
+      <div id="alert-dash" class="alert"></div>
+
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-icon">🎓</div>
+          <div class="stat-value" id="d-students">—</div>
+          <div class="stat-label">Total Students</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-icon">📋</div>
+          <div class="stat-value" id="d-loans">—</div>
+          <div class="stat-label">Total Loans</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">✅</div>
+          <div class="stat-value" id="d-approved">—</div>
+          <div class="stat-label">Approved Loans</div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-value" id="d-pending">—</div>
+          <div class="stat-label">Pending Loans</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-icon">❌</div>
+          <div class="stat-value" id="d-rejected">—</div>
+          <div class="stat-label">Rejected Loans</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">💵 Financial Overview</div>
+          </div>
+          <div class="card-body">
+            <div style="margin-bottom:16px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:13px;color:var(--muted);">Total Disbursed</span>
+                <span class="mono" id="d-disbursed" style="color:var(--accent3);">—</span>
+              </div>
+              <div class="progress"><div class="progress-bar" style="width:100%"></div></div>
+            </div>
+            <div style="margin-bottom:16px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:13px;color:var(--muted);">Total Repaid</span>
+                <span class="mono" id="d-repaid" style="color:var(--accent);">—</span>
+              </div>
+              <div class="progress"><div class="progress-bar" id="repaid-bar" style="width:0%;background:linear-gradient(90deg,var(--accent),#0099cc)"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:13px;color:var(--muted);">Outstanding</span>
+                <span class="mono" id="d-outstanding" style="color:var(--warn);">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🔧 Tech Stack</div>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:20px;">🐍</span>
+                <div>
+                  <div style="font-size:13px;font-weight:500;">Python + Flask</div>
+                  <div style="font-size:11px;color:var(--muted);">REST API Backend</div>
+                </div>
+                <span class="badge badge-approved" style="margin-left:auto;">Active</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:20px;">🐘</span>
+                <div>
+                  <div style="font-size:13px;font-weight:500;">PostgreSQL</div>
+                  <div style="font-size:11px;color:var(--muted);">Relational Database</div>
+                </div>
+                <span class="badge badge-approved" style="margin-left:auto;">Active</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:20px;">🔁</span>
+                <div>
+                  <div style="font-size:13px;font-weight:500;">Jenkins CI/CD</div>
+                  <div style="font-size:11px;color:var(--muted);">Pipeline Automation</div>
+                </div>
+                <span class="badge badge-approved" style="margin-left:auto;">Configured</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:20px;">🐳</span>
+                <div>
+                  <div style="font-size:13px;font-weight:500;">Docker</div>
+                  <div style="font-size:11px;color:var(--muted);">Containerization</div>
+                </div>
+                <span class="badge badge-approved" style="margin-left:auto;">Configured</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📡 API Endpoints Reference</div>
+        </div>
+        <div class="card-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+              <tbody id="endpoints-table">
+                <tr><td><span class="badge" style="background:rgba(16,185,129,0.15);color:var(--accent3);">GET</span></td><td class="mono">/api/dashboard</td><td>Dashboard stats</td></tr>
+                <tr><td><span class="badge" style="background:rgba(16,185,129,0.15);color:var(--accent3);">GET</span></td><td class="mono">/api/students</td><td>List all students</td></tr>
+                <tr><td><span class="badge" style="background:rgba(0,212,255,0.15);color:var(--accent);">POST</span></td><td class="mono">/api/students</td><td>Create student</td></tr>
+                <tr><td><span class="badge" style="background:rgba(245,158,11,0.15);color:var(--warn);">PUT</span></td><td class="mono">/api/students/:id</td><td>Update student</td></tr>
+                <tr><td><span class="badge" style="background:rgba(239,68,68,0.15);color:var(--danger);">DELETE</span></td><td class="mono">/api/students/:id</td><td>Delete student</td></tr>
+                <tr><td><span class="badge" style="background:rgba(16,185,129,0.15);color:var(--accent3);">GET</span></td><td class="mono">/api/loans</td><td>List all loans</td></tr>
+                <tr><td><span class="badge" style="background:rgba(0,212,255,0.15);color:var(--accent);">POST</span></td><td class="mono">/api/loans</td><td>Apply for loan</td></tr>
+                <tr><td><span class="badge" style="background:rgba(124,58,237,0.15);color:#a78bfa;">PATCH</span></td><td class="mono">/api/loans/:id/status</td><td>Update loan status</td></tr>
+                <tr><td><span class="badge" style="background:rgba(0,212,255,0.15);color:var(--accent);">POST</span></td><td class="mono">/api/repayments</td><td>Record repayment</td></tr>
+                <tr><td><span class="badge" style="background:rgba(16,185,129,0.15);color:var(--accent3);">GET</span></td><td class="mono">/api/repayments/loan/:id</td><td>Get repayments by loan</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STUDENTS ── -->
+    <div class="section" id="section-students">
+      <div id="alert-students" class="alert"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">➕ Register New Student</div>
+        </div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input id="s-name" placeholder="e.g. Yash Yadav"/>
+            </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input id="s-email" type="email" placeholder="e.g. yash@email.com"/>
+            </div>
+            <div class="form-group">
+              <label>Course / Program</label>
+              <input id="s-course" placeholder="e.g. B.E Computer Engineering"/>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="createStudent()">
+            ➕ Register Student
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🎓 All Students</div>
+          <button class="btn btn-outline btn-sm" onclick="loadStudents()">🔄 Refresh</button>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th><th>Name</th><th>Email</th>
+                  <th>Course</th><th>Registered</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="students-table">
+                <tr><td colspan="6"><div class="empty"><div class="empty-icon">🎓</div><div class="empty-text">No students yet. Register one above.</div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LOANS ── -->
+    <div class="section" id="section-loans">
+      <div id="alert-loans" class="alert"></div>
+
+      <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" onclick="loadLoans()">All</button>
+        <button class="btn btn-outline btn-sm" onclick="loadLoans('pending')">⏳ Pending</button>
+        <button class="btn btn-outline btn-sm" onclick="loadLoans('approved')">✅ Approved</button>
+        <button class="btn btn-outline btn-sm" onclick="loadLoans('rejected')">❌ Rejected</button>
+        <button class="btn btn-outline btn-sm" onclick="loadLoans('closed')">🔒 Closed</button>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📋 Loan Applications</div>
+          <button class="btn btn-outline btn-sm" onclick="loadLoans()">🔄 Refresh</button>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th><th>Student</th><th>Amount</th>
+                  <th>Rate</th><th>Tenure</th><th>Status</th>
+                  <th>Applied</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="loans-table">
+                <tr><td colspan="8"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No loans found.</div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── APPLY ── -->
+    <div class="section" id="section-apply">
+      <div id="alert-apply" class="alert"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📝 Loan Application Form</div>
+        </div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Student ID</label>
+              <input id="l-student" type="number" placeholder="Enter student ID"/>
+            </div>
+            <div class="form-group">
+              <label>Loan Amount (₹)</label>
+              <input id="l-amount" type="number" placeholder="e.g. 500000"/>
+            </div>
+            <div class="form-group">
+              <label>Interest Rate (%)</label>
+              <input id="l-rate" type="number" value="8.5" step="0.1" placeholder="e.g. 8.5"/>
+            </div>
+            <div class="form-group">
+              <label>Tenure (Months)</label>
+              <input id="l-tenure" type="number" placeholder="e.g. 60"/>
+            </div>
+            <div class="form-group" style="grid-column:1/-1;">
+              <label>Remarks (Optional)</label>
+              <textarea id="l-remarks" placeholder="Any additional information..."></textarea>
+            </div>
+          </div>
+
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:20px;">
+            <div style="font-size:13px;color:var(--muted);margin-bottom:8px;">📊 EMI Calculator Preview</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+              <div><div style="font-size:11px;color:var(--muted);">Monthly EMI</div><div class="mono" id="calc-emi" style="font-size:18px;color:var(--accent);">₹ —</div></div>
+              <div><div style="font-size:11px;color:var(--muted);">Total Payable</div><div class="mono" id="calc-total" style="font-size:18px;color:var(--warn);">₹ —</div></div>
+              <div><div style="font-size:11px;color:var(--muted);">Total Interest</div><div class="mono" id="calc-interest" style="font-size:18px;color:var(--danger);">₹ —</div></div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" onclick="applyLoan()">
+            📤 Submit Application
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── REPAYMENT ── -->
+    <div class="section" id="section-repayment">
+      <div id="alert-repay" class="alert"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">💰 Record Repayment</div>
+        </div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Loan ID</label>
+              <input id="r-loan" type="number" placeholder="Enter loan ID"/>
+            </div>
+            <div class="form-group">
+              <label>Amount Paid (₹)</label>
+              <input id="r-amount" type="number" placeholder="e.g. 15000"/>
+            </div>
+            <div class="form-group" style="grid-column:1/-1;">
+              <label>Remarks (Optional)</label>
+              <input id="r-remarks" placeholder="e.g. EMI for June 2026"/>
+            </div>
+          </div>
+          <button class="btn btn-success" onclick="addRepayment()">
+            💰 Record Repayment
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📜 Repayment History</div>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <input id="r-search-id" type="number" placeholder="Enter Loan ID to view history" style="flex:1;"/>
+            <button class="btn btn-outline" onclick="loadRepayments()">🔍 Search</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ID</th><th>Loan ID</th><th>Amount Paid</th><th>Date</th><th>Remarks</th></tr></thead>
+              <tbody id="repay-table">
+                <tr><td colspan="5"><div class="empty"><div class="empty-icon">💰</div><div class="empty-text">Search by Loan ID above.</div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="repay-total" style="display:none;margin-top:16px;padding:14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+            Total Repaid: <span class="mono" id="repay-total-val" style="color:var(--accent3);font-size:16px;"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── API EXPLORER ── -->
+    <div class="section" id="section-api">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">⚡ Live API Explorer</div>
+          <span style="font-size:12px;color:var(--muted);">Test your endpoints in real-time</span>
+        </div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Method</label>
+              <select id="api-method">
+                <option>GET</option><option>POST</option>
+                <option>PUT</option><option>PATCH</option><option>DELETE</option>
+              </select>
+            </div>
+            <div class="form-group" style="grid-column:span 2;">
+              <label>URL</label>
+              <input id="api-url" value="http://localhost:5000/api/dashboard" placeholder="http://localhost:5000/api/..."/>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:16px;">
+            <label>Request Body (JSON)</label>
+            <textarea id="api-body" style="min-height:120px;font-family:'DM Mono',monospace;font-size:13px;" placeholder='{"key": "value"}'></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="runApiCall()">▶ Send Request</button>
+
+          <div class="divider"></div>
+          <label>Response</label>
+          <div id="api-response" style="
+            background:var(--surface2);border:1px solid var(--border);
+            border-radius:8px;padding:16px;margin-top:8px;
+            font-family:'DM Mono',monospace;font-size:12px;
+            min-height:120px;white-space:pre-wrap;word-break:break-all;
+            color:var(--accent3);line-height:1.6;
+          ">// Response will appear here after sending a request...</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">📘 Quick Recipes</div></div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;">
+            <div class="recipe-card" onclick="fillRecipe('create-student')" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:border-color .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px;">➕ Create Student</div>
+              <div style="font-size:11px;color:var(--muted);">POST /api/students</div>
+            </div>
+            <div class="recipe-card" onclick="fillRecipe('apply-loan')" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:border-color .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px;">📋 Apply Loan</div>
+              <div style="font-size:11px;color:var(--muted);">POST /api/loans</div>
+            </div>
+            <div class="recipe-card" onclick="fillRecipe('approve-loan')" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:border-color .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px;">✅ Approve Loan</div>
+              <div style="font-size:11px;color:var(--muted);">PATCH /api/loans/1/status</div>
+            </div>
+            <div class="recipe-card" onclick="fillRecipe('repayment')" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:border-color .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px;">💰 Add Repayment</div>
+              <div style="font-size:11px;color:var(--muted);">POST /api/repayments</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<script>
+// ──────────────────────────────────────────
+// STATE (In-memory database — no localStorage)
+// ──────────────────────────────────────────
+const DB = {
+  students: [
+    {id:1,name:"Priya Sharma",email:"priya@gmail.com",course:"B.E Computer Engineering",created_at:"2025-01-15 10:30:00"},
+    {id:2,name:"Rohan Mehta",email:"rohan@gmail.com",course:"M.Tech Data Science",created_at:"2025-02-20 14:00:00"},
+    {id:3,name:"Aisha Khan",email:"aisha@gmail.com",course:"B.Tech Information Technology",created_at:"2025-03-05 09:15:00"},
+  ],
+  loans: [
+    {id:1,student_id:1,student_name:"Priya Sharma",amount:500000,interest_rate:8.5,tenure_months:60,status:"approved",applied_at:"2025-02-01 11:00:00",remarks:"Education loan"},
+    {id:2,student_id:2,student_name:"Rohan Mehta",amount:300000,interest_rate:9.0,tenure_months:36,status:"pending",applied_at:"2025-03-10 16:30:00",remarks:""},
+    {id:3,student_id:3,student_name:"Aisha Khan",amount:750000,interest_rate:8.0,tenure_months:84,status:"rejected",applied_at:"2025-04-05 08:45:00",remarks:"Insufficient documents"},
+  ],
+  repayments: [
+    {id:1,loan_id:1,amount_paid:10230,paid_at:"2025-03-01 12:00:00",remarks:"EMI March"},
+    {id:2,loan_id:1,amount_paid:10230,paid_at:"2025-04-01 12:00:00",remarks:"EMI April"},
+  ],
+  nextStudentId:4,
+  nextLoanId:4,
+  nextRepayId:3
+};
+
+// ──────────────────────────────────────────
+// NAVIGATION
+// ──────────────────────────────────────────
+const sectionTitles = {
+  dashboard:"Dashboard",students:"Students",loans:"Loans",
+  apply:"Apply for Loan",repayment:"Repayment","api":"API Explorer"
+};
+function showSection(name){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('section-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.textContent.toLowerCase().includes(sectionTitles[name].toLowerCase().split(' ')[0])||
+       (name==='api'&&n.textContent.includes('API')))
+      n.classList.add('active');
+  });
+  document.getElementById('page-title').textContent = sectionTitles[name]||name;
+  if(name==='dashboard') loadDashboard();
+  if(name==='students') loadStudents();
+  if(name==='loans') loadLoans();
+  updateNavCounts();
+}
+
+// ──────────────────────────────────────────
+// HELPERS
+// ──────────────────────────────────────────
+const fmt = n => '₹'+Number(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtDate = d => d ? d.split(' ')[0] : '—';
+
+function showAlert(id, msg, type='success'){
+  const el = document.getElementById(id);
+  el.className = `alert alert-${type} show`;
+  el.innerHTML = (type==='success'?'✅ ':'❌ ')+msg;
+  setTimeout(()=>el.classList.remove('show'),4000);
+}
+
+function updateNavCounts(){
+  document.getElementById('nav-student-count').textContent = DB.students.length;
+  document.getElementById('nav-loan-count').textContent = DB.loans.length;
+}
+
+function statusBadge(s){
+  return `<span class="badge badge-${s}">${s.charAt(0).toUpperCase()+s.slice(1)}</span>`;
+}
+
+// ──────────────────────────────────────────
+// DASHBOARD
+// ──────────────────────────────────────────
+function loadDashboard(){
+  const approved = DB.loans.filter(l=>l.status==='approved');
+  const pending  = DB.loans.filter(l=>l.status==='pending');
+  const rejected = DB.loans.filter(l=>l.status==='rejected');
+  const disbursed = approved.reduce((s,l)=>s+Number(l.amount),0);
+  const repaid   = DB.repayments.reduce((s,r)=>s+Number(r.amount_paid),0);
+
+  document.getElementById('d-students').textContent = DB.students.length;
+  document.getElementById('d-loans').textContent    = DB.loans.length;
+  document.getElementById('d-approved').textContent = approved.length;
+  document.getElementById('d-pending').textContent  = pending.length;
+  document.getElementById('d-rejected').textContent = rejected.length;
+  document.getElementById('d-disbursed').textContent = fmt(disbursed);
+  document.getElementById('d-repaid').textContent    = fmt(repaid);
+  document.getElementById('d-outstanding').textContent = fmt(Math.max(0,disbursed-repaid));
+
+  const pct = disbursed>0 ? Math.min(100,(repaid/disbursed)*100) : 0;
+  document.getElementById('repaid-bar').style.width = pct+'%';
+}
+
+// ──────────────────────────────────────────
+// STUDENTS
+// ──────────────────────────────────────────
+function loadStudents(){
+  const tbody = document.getElementById('students-table');
+  if(!DB.students.length){
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">🎓</div><div class="empty-text">No students yet.</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = DB.students.map(s=>`
+    <tr>
+      <td class="mono" style="color:var(--muted)">#${s.id}</td>
+      <td><strong>${s.name}</strong></td>
+      <td style="color:var(--muted)">${s.email}</td>
+      <td>${s.course}</td>
+      <td class="mono" style="color:var(--muted);font-size:12px">${fmtDate(s.created_at)}</td>
+      <td>
+        <button class="btn btn-danger btn-sm" onclick="deleteStudent(${s.id})">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function createStudent(){
+  const name   = document.getElementById('s-name').value.trim();
+  const email  = document.getElementById('s-email').value.trim();
+  const course = document.getElementById('s-course').value.trim();
+  if(!name||!email||!course){ showAlert('alert-students','All fields are required.','error'); return; }
+  if(DB.students.find(s=>s.email===email)){ showAlert('alert-students','Email already exists.','error'); return; }
+  DB.students.push({id:DB.nextStudentId++,name,email,course,created_at:new Date().toISOString().replace('T',' ').slice(0,19)});
+  document.getElementById('s-name').value='';
+  document.getElementById('s-email').value='';
+  document.getElementById('s-course').value='';
+  showAlert('alert-students',`Student "${name}" registered successfully!`);
+  loadStudents(); updateNavCounts();
+}
+
+function deleteStudent(id){
+  if(!confirm('Delete this student and all their loans?')) return;
+  DB.students = DB.students.filter(s=>s.id!==id);
+  DB.loans    = DB.loans.filter(l=>l.student_id!==id);
+  showAlert('alert-students',`Student #${id} deleted.`);
+  loadStudents(); updateNavCounts();
+}
+
+// ──────────────────────────────────────────
+// LOANS
+// ──────────────────────────────────────────
+function loadLoans(filter=null){
+  const tbody = document.getElementById('loans-table');
+  let loans = DB.loans;
+  if(filter) loans = loans.filter(l=>l.status===filter);
+  if(!loans.length){
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No ${filter||''} loans found.</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = loans.map(l=>`
+    <tr>
+      <td class="mono" style="color:var(--muted)">#${l.id}</td>
+      <td><strong>${l.student_name||'Student #'+l.student_id}</strong></td>
+      <td class="mono" style="color:var(--accent3)">${fmt(l.amount)}</td>
+      <td class="mono">${l.interest_rate}%</td>
+      <td class="mono">${l.tenure_months}mo</td>
+      <td>${statusBadge(l.status)}</td>
+      <td class="mono" style="color:var(--muted);font-size:12px">${fmtDate(l.applied_at)}</td>
+      <td>
+        ${l.status==='pending'?`
+          <button class="btn btn-success btn-sm" onclick="updateLoanStatus(${l.id},'approved')">✅</button>
+          <button class="btn btn-danger btn-sm" onclick="updateLoanStatus(${l.id},'rejected')">❌</button>
+        `:''}
+        ${l.status==='approved'?`<button class="btn btn-outline btn-sm" onclick="updateLoanStatus(${l.id},'closed')">🔒</button>`:''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function updateLoanStatus(id, status){
+  const loan = DB.loans.find(l=>l.id===id);
+  if(!loan) return;
+  loan.status = status;
+  if(status==='approved') loan.approved_at = new Date().toISOString().replace('T',' ').slice(0,19);
+  showAlert('alert-loans',`Loan #${id} ${status}!`, status==='rejected'?'error':'success');
+  loadLoans();
+}
+
+// ──────────────────────────────────────────
+// APPLY
+// ──────────────────────────────────────────
+function calcEMI(){
+  const P = parseFloat(document.getElementById('l-amount').value)||0;
+  const r = (parseFloat(document.getElementById('l-rate').value)||0)/100/12;
+  const n = parseInt(document.getElementById('l-tenure').value)||0;
+  if(P&&r&&n){
+    const emi = P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
+    const total = emi*n;
+    document.getElementById('calc-emi').textContent = fmt(emi);
+    document.getElementById('calc-total').textContent = fmt(total);
+    document.getElementById('calc-interest').textContent = fmt(total-P);
+  } else {
+    document.getElementById('calc-emi').textContent='₹ —';
+    document.getElementById('calc-total').textContent='₹ —';
+    document.getElementById('calc-interest').textContent='₹ —';
+  }
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  ['l-amount','l-rate','l-tenure'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input',calcEMI);
+  });
+});
+
+function applyLoan(){
+  const student_id = parseInt(document.getElementById('l-student').value);
+  const amount     = parseFloat(document.getElementById('l-amount').value);
+  const rate       = parseFloat(document.getElementById('l-rate').value)||8.5;
+  const tenure     = parseInt(document.getElementById('l-tenure').value);
+  const remarks    = document.getElementById('l-remarks').value.trim();
+  if(!student_id||!amount||!tenure){ showAlert('alert-apply','Student ID, Amount and Tenure are required.','error'); return; }
+  const student = DB.students.find(s=>s.id===student_id);
+  if(!student){ showAlert('alert-apply',`Student #${student_id} not found.`,'error'); return; }
+  const loan = {
+    id:DB.nextLoanId++, student_id, student_name:student.name,
+    amount, interest_rate:rate, tenure_months:tenure,
+    status:'pending', applied_at:new Date().toISOString().replace('T',' ').slice(0,19), remarks
+  };
+  DB.loans.push(loan);
+  document.getElementById('l-student').value='';
+  document.getElementById('l-amount').value='';
+  document.getElementById('l-tenure').value='';
+  document.getElementById('l-remarks').value='';
+  calcEMI();
+  showAlert('alert-apply',`Loan application #${loan.id} submitted for ${student.name}!`);
+  updateNavCounts();
+}
+
+// ──────────────────────────────────────────
+// REPAYMENTS
+// ──────────────────────────────────────────
+function addRepayment(){
+  const loan_id    = parseInt(document.getElementById('r-loan').value);
+  const amount_paid= parseFloat(document.getElementById('r-amount').value);
+  const remarks    = document.getElementById('r-remarks').value.trim();
+  if(!loan_id||!amount_paid){ showAlert('alert-repay','Loan ID and Amount are required.','error'); return; }
+  const loan = DB.loans.find(l=>l.id===loan_id);
+  if(!loan){ showAlert('alert-repay',`Loan #${loan_id} not found.`,'error'); return; }
+  if(loan.status!=='approved'){ showAlert('alert-repay','Repayment only allowed for approved loans.','error'); return; }
+  DB.repayments.push({id:DB.nextRepayId++,loan_id,amount_paid,paid_at:new Date().toISOString().replace('T',' ').slice(0,19),remarks});
+  document.getElementById('r-loan').value='';
+  document.getElementById('r-amount').value='';
+  document.getElementById('r-remarks').value='';
+  showAlert('alert-repay',`Repayment of ${fmt(amount_paid)} recorded for Loan #${loan_id}!`);
+}
+
+function loadRepayments(){
+  const lid = parseInt(document.getElementById('r-search-id').value);
+  const tbody = document.getElementById('repay-table');
+  const totalEl = document.getElementById('repay-total');
+  if(!lid){ showAlert('alert-repay','Enter a valid Loan ID.','error'); return; }
+  const rows = DB.repayments.filter(r=>r.loan_id===lid);
+  if(!rows.length){
+    tbody.innerHTML=`<tr><td colspan="5"><div class="empty"><div class="empty-icon">💰</div><div class="empty-text">No repayments for Loan #${lid}.</div></div></td></tr>`;
+    totalEl.style.display='none'; return;
+  }
+  tbody.innerHTML = rows.map(r=>`
+    <tr>
+      <td class="mono" style="color:var(--muted)">#${r.id}</td>
+      <td class="mono">#${r.loan_id}</td>
+      <td class="mono" style="color:var(--accent3)">${fmt(r.amount_paid)}</td>
+      <td class="mono" style="font-size:12px;color:var(--muted)">${fmtDate(r.paid_at)}</td>
+      <td>${r.remarks||'—'}</td>
+    </tr>
+  `).join('');
+  const total = rows.reduce((s,r)=>s+Number(r.amount_paid),0);
+  document.getElementById('repay-total-val').textContent = fmt(total);
+  totalEl.style.display='block';
+}
+
+// ──────────────────────────────────────────
+// API EXPLORER
+// ──────────────────────────────────────────
+async function runApiCall(){
+  const method = document.getElementById('api-method').value;
+  const url    = document.getElementById('api-url').value;
+  const body   = document.getElementById('api-body').value;
+  const out    = document.getElementById('api-response');
+  out.style.color='var(--muted)';
+  out.textContent='⏳ Sending request...';
+  try{
+    const opts = {method, headers:{'Content-Type':'application/json'}};
+    if(['POST','PUT','PATCH'].includes(method)&&body) opts.body=body;
+    const res = await fetch(url, opts);
+    const data = await res.json();
+    out.style.color = res.ok ? 'var(--accent3)':'var(--danger)';
+    out.textContent = `// HTTP ${res.status} ${res.statusText}\n\n`+JSON.stringify(data,null,2);
+  } catch(e){
+    out.style.color='var(--warn)';
+    out.textContent=`// ⚠️ Could not connect to API\n// Make sure Flask is running: python app.py\n\n// Error: ${e.message}`;
+  }
+}
+
+const recipes = {
+  'create-student':{method:'POST',url:'http://localhost:5000/api/students',body:{name:"Yash Yadav",email:"yash@email.com",course:"B.E Computer Engineering"}},
+  'apply-loan':{method:'POST',url:'http://localhost:5000/api/loans',body:{student_id:1,amount:500000,interest_rate:8.5,tenure_months:60,remarks:"Education loan"}},
+  'approve-loan':{method:'PATCH',url:'http://localhost:5000/api/loans/1/status',body:{status:"approved",remarks:"Documents verified"}},
+  'repayment':{method:'POST',url:'http://localhost:5000/api/repayments',body:{loan_id:1,amount_paid:10230,remarks:"EMI June 2026"}}
+};
+function fillRecipe(key){
+  const r = recipes[key];
+  document.getElementById('api-method').value = r.method;
+  document.getElementById('api-url').value = r.url;
+  document.getElementById('api-body').value = JSON.stringify(r.body,null,2);
+}
+
+// ──────────────────────────────────────────
+// INIT
+// ──────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',()=>{
+  loadDashboard();
+  updateNavCounts();
+});
+</script>
+</body>
+</html>
