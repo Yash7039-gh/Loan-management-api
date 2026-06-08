@@ -1,51 +1,6 @@
-# 💳 Student Loan Management System — REST API
-
 A production-ready **REST API** built with **Python Flask**, **PostgreSQL**, **Docker**, and **Jenkins CI/CD**. 
 
 Live Demo: https://yash7039-gh.github.io/Loan-management-api/
-
-## 🚀 Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Backend | Python 3.11 + Flask |
-| Database | PostgreSQL 15 |
-| ORM/Driver | psycopg2 |
-| CI/CD | Jenkins Pipeline |
-| Containerization | Docker + Docker Compose |
-| API Style | RESTful |
-
-
-
-## 📋 Features
-
-- ✅ Full **CRUD** for Students
-- ✅ Loan **Application**, **Approval**, **Rejection**, **Closure**
-- ✅ **Repayment** tracking per loan
-- ✅ **Dashboard** stats (disbursed, repaid, outstanding)
-- ✅ Input **validation** & proper **HTTP status codes**
-- ✅ **JOIN queries** across students, loans, repayments
-- ✅ **Jenkins CI/CD** pipeline (lint → test → build → deploy)
-- ✅ **Docker** + Docker Compose support
-- ✅ **Interactive HTML Dashboard** with live API explorer
-
----
-
-## 📁 Project Structure
-
-```
-loan-management-api/
-├── app.py               # Flask REST API (main application)
-├── requirements.txt     # Python dependencies
-├── Dockerfile           # Docker image config
-├── docker-compose.yml   # Multi-container setup (API + PostgreSQL)
-├── Jenkinsfile          # CI/CD pipeline
-├── dashboard.html       # Interactive frontend dashboard
-├── .env.example         # Environment variables template
-└── README.md
-```
-
----
 
 ## ⚡ Quick Start
 
