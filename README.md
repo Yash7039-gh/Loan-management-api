@@ -1,7 +1,6 @@
 # 💳 Student Loan Management System — REST API
 
-A production-ready **REST API** built with **Python Flask**, **PostgreSQL**, **Docker**, and **Jenkins CI/CD**.  
-Developed by **Yash Yadav** 
+A production-ready **REST API** built with **Python Flask**, **PostgreSQL**, **Docker**, and **Jenkins CI/CD**. 
 
 ---
 
@@ -179,12 +178,4 @@ Open `dashboard.html` in your browser for an interactive UI:
 - 💰 Repayment tracking
 - ⚡ Live API explorer
 
----
 
-## 👤 Author
-
-**Yash Yadav**  
-B.E Computer Engineering (Honours in Cybersecurity)  
-Shivajirao S. Jondhale College of Engineering, Mumbai | CGPA: 8.10  
-📧 yashyadav7039@gmail.com  
-🔗 [LinkedIn](https://linkedin.com/in/yash-yadav-bb1216350) | [GitHub](https://github.com/Yash7039-gh)
